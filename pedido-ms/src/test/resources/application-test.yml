@@ -1,0 +1,38 @@
+server:
+  port: 0
+
+spring:
+  application:
+    name: pedido-ms
+  datasource:
+#    url: jdbc:h2:mem:testdb
+#    username: sa
+#    password:
+#    driver-class-name: org.h2.Driver
+    url: jdbc:postgresql://localhost:5446/postgres
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+  h2:
+    console:
+      enabled: true
+
+eureka:
+  client:
+    enabled: false
+    register-with-eureka: false
+    fetch-registry: false
+
+logging:
+  level:
+    root: INFO
+
+springdoc:
+  api-docs:
+    swagger-ui:
+      path: /swagger-ui.html
