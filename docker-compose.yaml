@@ -12,6 +12,8 @@ services:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+    networks:
+      - app-network
 
   mongo:
     image: mongo:latest
@@ -22,9 +24,9 @@ services:
     ports:
       - "27017:27017"    
     networks:
-      - mongo-compose-network
+      - app-network
     volumes:
-      - ../mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
       - mongo-data:/data/db
 
   mongo-express:
@@ -44,7 +46,8 @@ services:
     links:
       - mongo
     networks:
-      - mongo-compose-network
+      - app-network
+
   postgres:
     image: postgres:16.3-alpine
     ports:
@@ -66,6 +69,8 @@ services:
     volumes:
       - redis-data:/data
     restart: unless-stopped
+    networks:
+      - app-network
 
   pgadmin:
     image: dpage/pgadmin4
@@ -91,7 +96,109 @@ services:
       - COUCHBASE_ADMINISTRATOR_PASSWORD=admin123
     volumes:
       - couchbase_data:/opt/couchbase/var
+    networks:
+      - app-network
 
+  eureka-server:
+    build:
+      context: ./eureka-server
+    ports:
+      - "8761:8761"
+    networks:
+      - app-network
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8761/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  gateway-ms:
+    build:
+      context: ./gateway-ms
+    ports:
+      - "8080:8080"
+    networks:
+      - app-network
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+
+  cliente-ms:
+    build:
+      context: ./cliente-ms
+    networks:
+      - app-network
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATA_MONGODB_URI=mongodb://root:example@mongo:27017/tech-challenge-cliente
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      mongo:
+        condition: service_started
+
+  produto-ms:
+    build:
+      context: ./produto-ms
+    networks:
+      - app-network
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_COUCHBASE_CONNECTION-STRING=couchbase://couchbase
+      - SPRING_COUCHBASE_USERNAME=admin
+      - SPRING_COUCHBASE_PASSWORD=admin123
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      couchbase:
+        condition: service_started
+
+  pedido-ms:
+    build:
+      context: ./pedido-ms
+    networks:
+      - app-network
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/tech_challenge
+      - SPRING_DATASOURCE_USERNAME=techchallenge
+      - SPRING_DATASOURCE_PASSWORD=techchallenge123
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      mysql:
+        condition: service_started
+      produto-ms:
+        condition: service_started
+      cliente-ms:
+        condition: service_started
+
+  pagamento-ms:
+    build:
+      context: ./pagamento-ms
+    networks:
+      - app-network
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/tech_challenge
+      - SPRING_DATASOURCE_USERNAME=techchallenge
+      - SPRING_DATASOURCE_PASSWORD=techchallenge123
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      mysql:
+        condition: service_started
+      pedido-ms:
+        condition: service_started
 
 volumes:
   postgres-data:
@@ -102,5 +209,6 @@ volumes:
   
 networks:
   app-network:
+    driver: bridge
   mongo-compose-network:
     driver: bridge
