@@ -19,6 +19,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -36,20 +37,6 @@ public class PedidoRepositoryAdapter implements PedidoPort {
 
     @Override
     public List<Pedido> listarPedidosPorSituacao(String situacao) {
-//        if(Objects.isNull(situacao)){
-//            List<PedidoEntity> pedidos = pedidoRepository.findAll().stream()
-//                    .filter(Objects::nonNull)
-//                    .filter(p -> p.getSituacaoPedidoEnum().compareTo(SituacaoPedidoEnum.FINALIZADO) < 0)
-//                    .sorted(Comparator
-//                            .comparing((PedidoEntity p) -> {
-//                                if (p.getSituacaoPedidoEnum() == SituacaoPedidoEnum.PRONTO) return 1;
-//                                else if (p.getSituacaoPedidoEnum() == SituacaoPedidoEnum.EM_PREPARACAO) return 2;
-//                                else return 3;
-//                            })
-//                            .thenComparing(PedidoEntity::getHorarioInicio))
-//                    .toList();
-//            return pedidos.stream().map(p -> modelMapper.map(p, Pedido.class)).toList();
-//        }
         Integer situacaoPedido = situacao != null ? SituacaoPedidoEnum.obter(situacao).getCodigo() : null;
         List<String> situacoesNotIn = List.of("CRIADO", "INCIAR_PREPARACAO", "MONTAGEM", "FINALIZADO");
         List<PedidoEntity> pedidos = pedidoRepository.listarPedidosPorSituacao(situacaoPedido, situacoesNotIn);
@@ -71,9 +58,9 @@ public class PedidoRepositoryAdapter implements PedidoPort {
                         .stream()
                         .map(ProdutoDTO::getId)
                         .toList());
-
-
-        //ntity.setProdutos(produtoStok.stream().map(ProdutoDTO::getId).toList());
+        
+        // Adiciona os IDs dos produtos ao pedido
+        entity.setProdutoIds(produtoStok.stream().map(ProdutoDTO::getId).collect(Collectors.toList()));
         entity.setHorarioInicio(LocalDateTime.now());
         entity.setSituacaoPedidoEnum(SituacaoPedidoEnum.CRIADO);
 

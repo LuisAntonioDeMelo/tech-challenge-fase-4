@@ -39,7 +39,7 @@ public class PedidoPresenter {
 
         private Long idPedido;
         private String codigoPedido;
-        private String name;
+        private String situacaoPedido; // Renomeado de "name" para "situacaoPedido" para maior consistência
         private LocalDateTime horarioInicio;
         private LocalDateTime horarioFinalizacao;
         private BigDecimal valorTotalPedido;
@@ -47,14 +47,14 @@ public class PedidoPresenter {
         public PedidoViewModel(
                 Long idPedido,
                 String codigoPedido,
-                String name,
+                String situacaoPedido,
                 LocalDateTime horarioInicio,
                 LocalDateTime horarioFinalizacao,
                 BigDecimal valorTotalPedido
         ) {
             this.idPedido = idPedido;
             this.codigoPedido = codigoPedido;
-            this.name = name;
+            this.situacaoPedido = situacaoPedido;
             this.horarioInicio = horarioInicio;
             this.horarioFinalizacao = horarioFinalizacao;
             this.valorTotalPedido = valorTotalPedido;
