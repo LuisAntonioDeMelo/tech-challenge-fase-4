@@ -1,9 +1,9 @@
 package com.techchallenge.cliente.application.gateway;
 
-
 import com.techchallenge.cliente.domain.Cliente;
 
 import java.util.Optional;
+import java.util.UUID;
 
 public interface ClienteGateway {
 
@@ -13,7 +13,7 @@ public interface ClienteGateway {
 
     public Cliente editarCliente(Cliente cliente);
 
-    public void deletarCliente(Long id);
+    public void deletarCliente(UUID id);
 
-    public Optional<Cliente> obterPorId(Long id);
+    public Optional<Cliente> obterPorId(UUID id);
 }

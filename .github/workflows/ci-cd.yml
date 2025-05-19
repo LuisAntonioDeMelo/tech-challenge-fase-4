@@ -1,0 +1,72 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Run main application tests
+      run: npm test
+      
+    - name: Find all microservices
+      id: find-ms
+      run: echo "ms_dirs=$(find . -type d -name '*-ms' | tr '\n' ' ')" >> $GITHUB_OUTPUT
+      
+    - name: Run tests for all microservices
+      run: |
+        for dir in ${{ steps.find-ms.outputs.ms_dirs }}; do
+          echo "Running tests for microservice: $dir"
+          cd $dir
+          npm ci
+          npm test
+          cd $GITHUB_WORKSPACE
+        done
+      
+  deploy:
+    name: Deploy
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Build application
+      run: npm run build
+      
+    - name: Fake deployment
+      run: |
+        echo "Starting deployment process..."
+        echo "Building Docker container..."
+        echo "Pushing to container registry..."
+        echo "Updating services..."
+        echo "Deployment completed successfully!"

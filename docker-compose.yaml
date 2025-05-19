@@ -28,6 +28,12 @@ services:
     volumes:
       - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
       - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   mongo-express:
     depends_on:
@@ -135,13 +141,13 @@ services:
       - app-network
     environment:
       - SPRING_PROFILES_ACTIVE=docker
-      - SPRING_DATA_MONGODB_URI=mongodb://root:example@mongo:27017/tech-challenge-cliente
+      - SPRING_DATA_MONGODB_URI=mongodb://techchallenge:techchallenge123@mongo:27017/tech-challenge-cliente?authSource=tech-challenge-cliente
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
     depends_on:
       eureka-server:
         condition: service_healthy
       mongo:
-        condition: service_started
+        condition: service_healthy
 
   produto-ms:
     build:

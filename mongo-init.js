@@ -1,3 +1,6 @@
+db = db.getSiblingDB('admin');
+db.auth('root', 'example');
+
 db = db.getSiblingDB('tech-challenge-cliente'); 
 
 db.createUser({
@@ -10,3 +13,6 @@ db.createUser({
     }
   ]
 });
+
+// Criar a coleção cliente para garantir que o banco de dados seja criado
+db.createCollection('cliente');
