@@ -130,6 +130,11 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - SPRING_CLOUD_GATEWAY_HTTPCLIENT_WIRETAP=true
+      - SPRING_CLOUD_GATEWAY_DEFAULT_FILTERS=DedupeResponseHeader=Access-Control-Allow-Origin
+      - SPRING_CLOUD_GATEWAY_DISCOVERY_LOCATOR_ENABLED=true
+      - SPRING_CLOUD_GATEWAY_ROUTES_PREDICATE_BEFORE_AUTH=true
+      - SPRING_SECURITY_IGNORED_PATTERNS=/api/non-existent-service/**,/api/**/actuator/**
     depends_on:
       eureka-server:
         condition: service_healthy
