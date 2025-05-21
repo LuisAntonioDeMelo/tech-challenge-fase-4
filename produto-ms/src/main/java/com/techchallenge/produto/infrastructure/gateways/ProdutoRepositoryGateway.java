@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -25,6 +26,7 @@ public class ProdutoRepositoryGateway implements ProdutoGateway {
     @Override
     public Produto criarProduto(Produto produto) {
         ProdutoEntity entity = modelMapper.map(produto, ProdutoEntity.class);
+        entity.setId(UUID.randomUUID());
         entity.setCategoriaProdutoEnum(CategoriaProdutoEnum.obter(produto.getCategoriaProduto().name()));
         ProdutoEntity produtoEntity = produtoRepository.save(entity);
         return modelMapper.map(produtoEntity, Produto.class);
@@ -46,7 +48,7 @@ public class ProdutoRepositoryGateway implements ProdutoGateway {
     }
 
     @Override
-    public void deletarProduto(Long id) {
+    public void deletarProduto(UUID id) {
         Optional<ProdutoEntity> entityDb = produtoRepository.findById(id);
         entityDb.ifPresentOrElse(produtoRepository::delete, () -> new ProdutoInexistenteException(" Produto não encontrado!"));
     }
@@ -65,7 +67,7 @@ public class ProdutoRepositoryGateway implements ProdutoGateway {
     }
 
     @Override
-    public Optional<Produto> obterPorId(Long id) {
+    public Optional<Produto> obterPorId(UUID id) {
         Optional<ProdutoEntity> produtoEntity = produtoRepository.findById(id);
         return produtoEntity.map(entity -> modelMapper.map(entity, Produto.class));
     }

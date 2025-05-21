@@ -7,6 +7,7 @@ import com.techchallenge.produto.domain.Produto;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public class ProdutoInteractor implements ProdutoUseCase {
 
@@ -31,7 +32,7 @@ public class ProdutoInteractor implements ProdutoUseCase {
     }
 
     @Override
-    public void deletarProduto(String id) {
+    public void deletarProduto(UUID id) {
         Optional<Produto> produtoOptional =  produtoGateway.obterPorId(id);
         if(produtoOptional.isEmpty()) {
             throw new ProdutoInexistenteException("Produto não encontrato ");

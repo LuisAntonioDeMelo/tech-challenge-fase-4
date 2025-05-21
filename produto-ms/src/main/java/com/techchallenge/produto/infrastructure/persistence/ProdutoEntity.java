@@ -30,5 +30,4 @@ public class ProdutoEntity {
     private Integer quantidade;
     private CategoriaProdutoEnum categoriaProdutoEnum;
     private List<UUID> pedidos;
-
 }

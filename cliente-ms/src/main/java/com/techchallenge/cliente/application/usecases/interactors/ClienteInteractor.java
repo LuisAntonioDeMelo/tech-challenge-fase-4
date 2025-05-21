@@ -1,7 +1,6 @@
 package com.techchallenge.cliente.application.usecases.interactors;
 
 
-
 import com.techchallenge.cliente.application.gateway.ClienteGateway;
 import com.techchallenge.cliente.application.usecases.ClienteUseCase;
 import com.techchallenge.cliente.application.usecases.exceptions.ClienteExistenteException;
@@ -11,6 +10,7 @@ import com.techchallenge.cliente.domain.Cliente;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.IntStream;
 
 public class ClienteInteractor implements ClienteUseCase {
@@ -27,7 +27,7 @@ public class ClienteInteractor implements ClienteUseCase {
             throw new InvalidCpfException("CPF Inserido não é válido");
         }
         Optional<Cliente> clienteExiste = clienteGateway.obterClientePorCPF(cliente.getCpf());
-        if(clienteExiste.isPresent()) {
+        if (clienteExiste.isPresent()) {
             throw new ClienteExistenteException("já existe um cliente com mesmo CPF:" + cliente.getCpf());
 
         }
@@ -61,7 +61,7 @@ public class ClienteInteractor implements ClienteUseCase {
     }
 
     @Override
-    public void deletarCliente(Long id) {
+    public void deletarCliente(UUID id) {
         Optional<Cliente> cliente = clienteGateway.obterPorId(id);
         if (cliente.isEmpty()) {
             throw new ClienteNotFoundException("Cliente não encontrado");

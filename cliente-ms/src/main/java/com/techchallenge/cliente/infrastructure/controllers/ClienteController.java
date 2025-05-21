@@ -14,6 +14,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("api/clientes")
 @Tag(name = "Clientes", description = "Operações para gerenciamento de clientes")
@@ -46,7 +48,7 @@ public class ClienteController {
             @ApiResponse(responseCode = "201", description = "Cliente criado com sucesso."),
             @ApiResponse(responseCode = "400", description = "Dados inválidos para criação.")
     })
-    @PostMapping
+    @PostMapping("/novo")
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<ClienteResponseDTO> criarCliente(
             @RequestBody
@@ -64,7 +66,7 @@ public class ClienteController {
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<ClienteResponseDTO> editarCliente(
             @PathVariable
-            @Parameter(description = "ID do cliente a ser editado") Long id,
+            @Parameter(description = "ID do cliente a ser editado") UUID id,
             @RequestBody
             @Parameter(description = "Novos dados do cliente") ClienteRequest clienteRequest) {
         Cliente cliente = clienteUseCase.editarCliente(clienteConverter.toDomain(id, clienteRequest));
@@ -80,7 +82,7 @@ public class ClienteController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public ResponseEntity<Void> deletarCliente(
             @PathVariable
-            @Parameter(description = "ID do cliente a ser deletado") Long id) {
+            @Parameter(description = "ID do cliente a ser deletado") UUID id) {
         clienteUseCase.deletarCliente(id);
         return ResponseEntity.ok().build();
     }

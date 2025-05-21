@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -25,6 +26,7 @@ public class ClienteRepositoryGateway implements ClienteGateway {
     @Transactional
     @ExceptionHandler(ClientePersistenceException.class)
     public Cliente criarCliente(Cliente cliente) {
+        cliente.setId(UUID.randomUUID());
         ClienteEntity clienteEntity= clienteRepository.save(modelMapper.map(cliente, ClienteEntity.class));
         return modelMapper.map(clienteEntity, Cliente.class);
     }
@@ -43,12 +45,12 @@ public class ClienteRepositoryGateway implements ClienteGateway {
     }
 
     @Override
-    public void deletarCliente(Long id) {
+    public void deletarCliente(UUID id) {
         clienteRepository.deleteById(id);
     }
 
     @Override
-    public Optional<Cliente> obterPorId(Long id) {
+    public Optional<Cliente> obterPorId(UUID id) {
         return Optional.of(modelMapper.map(clienteRepository.findById(id), Cliente.class));
     }
 

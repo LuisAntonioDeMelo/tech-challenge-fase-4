@@ -4,7 +4,12 @@ server:
 spring:
   application:
     name: cliente-ms
-
+  data:
+    mongodb:
+      uri: mongodb://root:example@localhost:27017
+      username: root
+      password: example
+      database: tech-challenge-cliente
 eureka:
   client:
     service-url:
@@ -20,10 +25,6 @@ management:
   endpoint:
     health:
       show-details: always
-datasource:
-  data:
-    mongodb:
-      uri: mongodb://techchallenge:techchallenge123@mongo:27017/tech-challenge-cliente?authSource=tech-challenge-cliente
 
 springdoc:
   api-docs:

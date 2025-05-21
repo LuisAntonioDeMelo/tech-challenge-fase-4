@@ -5,13 +5,15 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
 
+import java.util.UUID;
+
 @Getter
 @Builder
 @Data
 public class ClienteResponseDTO {
 
     @JsonProperty("codigo")
-    private Long codigoCliente;
+    private UUID codigoCliente;
 
     @JsonProperty("nome")
     private String nomeCliente;

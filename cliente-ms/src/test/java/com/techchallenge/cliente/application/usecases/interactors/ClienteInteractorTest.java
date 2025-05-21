@@ -13,6 +13,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -80,7 +81,8 @@ class ClienteInteractorTest {
     void deveObterClienteQuandoCpfExiste() {
         // Arrange
         String cpf = "86599902062";
-        Cliente cliente = new Cliente(1L, cpf, "João Silva", "joao@example.com", "11999999999");
+        UUID U = UUID.randomUUID();
+        Cliente cliente = new Cliente(U, cpf, "João Silva", "joao@example.com", "11999999999");
         when(clienteGateway.obterClientePorCPF(cpf)).thenReturn(Optional.of(cliente));
 
         // Act
@@ -100,7 +102,7 @@ class ClienteInteractorTest {
         when(clienteGateway.obterClientePorCPF(cpf)).thenReturn(Optional.empty());
 
         // Act & Assert
-        assertThrows(ClienteNotFoundException.class, () -> {
+        assertThrows(InvalidCpfException.class, () -> {
             clienteInteractor.obterCliente(cpf);
         });
     }

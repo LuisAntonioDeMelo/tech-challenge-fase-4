@@ -7,6 +7,8 @@ import com.techchallenge.cliente.infrastructure.controllers.inputs.ClienteReques
 import com.techchallenge.cliente.infrastructure.controllers.outputs.ClienteResponseDTO;
 import org.springframework.stereotype.Component;
 
+import java.util.UUID;
+
 @Component
 public class ClienteConverter {
 
@@ -15,7 +17,7 @@ public class ClienteConverter {
        return new Cliente( null ,clienteRequest.cpf(),clienteRequest.nome(), clienteRequest.email(), clienteRequest.telefone());
     }
 
-    public Cliente toDomain(Long id, ClienteRequest clienteRequest) {
+    public Cliente toDomain(UUID id, ClienteRequest clienteRequest) {
         return new Cliente(id, clienteRequest.cpf(),clienteRequest.nome(), clienteRequest.email(), clienteRequest.telefone());
     }
 
