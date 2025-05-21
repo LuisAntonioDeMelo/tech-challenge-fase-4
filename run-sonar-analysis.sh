@@ -31,16 +31,4 @@ cd pagamento-ms
 mvn clean verify sonar:sonar -Dsonar.projectKey=pagamento-ms -Dsonar.host.url=http://localhost:9000 -Dsonar.login=admin -Dsonar.password=admin
 cd ..
 
-# Estoque microservice
-echo "Running analysis for estoque-ms..."
-cd estoque-ms
-mvn clean verify sonar:sonar -Dsonar.projectKey=estoque-ms -Dsonar.host.url=http://localhost:9000 -Dsonar.login=admin -Dsonar.password=admin
-cd ..
-
-# Autenticacao microservice
-echo "Running analysis for autenticacao-ms..."
-cd autenticacao-ms
-mvn clean verify sonar:sonar -Dsonar.projectKey=autenticacao-ms -Dsonar.host.url=http://localhost:9000 -Dsonar.login=admin -Dsonar.password=admin
-cd ..
-
 echo "SonarQube analysis completed"
