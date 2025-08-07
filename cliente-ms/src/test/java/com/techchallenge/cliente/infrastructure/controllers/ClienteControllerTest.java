@@ -7,6 +7,7 @@ import com.techchallenge.cliente.application.usecases.exceptions.InvalidCpfExcep
 import com.techchallenge.cliente.domain.Cliente;
 import com.techchallenge.cliente.infrastructure.controllers.inputs.ClienteRequest;
 import com.techchallenge.cliente.infrastructure.controllers.outputs.ClienteResponseDTO;
+import com.techchallenge.cliente.infrastructure.converters.ClienteConverter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,36 +31,46 @@ class ClienteControllerTest {
 
     @Mock
     private ClienteUseCase clienteUseCase;
+    
+    @Mock
+    private ClienteConverter clienteConverter;
 
     private ClienteController clienteController;
 
     @BeforeEach
     void setUp() {
-        clienteController = new ClienteController(clienteUseCase);
+        clienteController = new ClienteController(clienteUseCase, clienteConverter);
     }
 
     @Test
     @DisplayName("Deve criar cliente com sucesso")
     void deveCriarClienteComSucesso() {
         // Arrange
-        ClienteRequest request = new ClienteRequest();
-        request.setCpf("86599902062");
-        request.setNome("João Silva");
-        request.setEmail("joao@example.com");
-        request.setTelefone("11999999999");
+        ClienteRequest request = new ClienteRequest("86599902062", "João Silva", "joao@example.com", "11999999999");
 
         UUID clienteId = UUID.randomUUID();
-        Cliente cliente = new Cliente(clienteId, "86599902062", "João Silva", "joao@example.com", "11999999999");
+        Cliente clienteDomain = new Cliente(null, "86599902062", "João Silva", "joao@example.com", "11999999999");
+        Cliente clienteSalvo = new Cliente(clienteId, "86599902062", "João Silva", "joao@example.com", "11999999999");
         
-        when(clienteUseCase.criarCliente(any(Cliente.class))).thenReturn(cliente);
+        ClienteResponseDTO responseDTO = ClienteResponseDTO.builder()
+            .codigoCliente(clienteId)
+            .cpf("86599902062")
+            .nomeCliente("João Silva")
+            .emailCliente("joao@example.com")
+            .numeroTelefone("11999999999")
+            .build();
+        
+        when(clienteConverter.toDomain(request)).thenReturn(clienteDomain);
+        when(clienteUseCase.criarCliente(clienteDomain)).thenReturn(clienteSalvo);
+        when(clienteConverter.toDto(clienteSalvo)).thenReturn(responseDTO);
 
         // Act
         ResponseEntity<ClienteResponseDTO> response = clienteController.criarCliente(request);
 
         // Assert
-        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
-        assertEquals("João Silva", response.getBody().getNome());
+        assertEquals("João Silva", response.getBody().getNomeCliente());
         assertEquals("86599902062", response.getBody().getCpf());
     }
 
@@ -71,15 +82,24 @@ class ClienteControllerTest {
         UUID clienteId = UUID.randomUUID();
         Cliente cliente = new Cliente(clienteId, cpf, "João Silva", "joao@example.com", "11999999999");
         
+        ClienteResponseDTO responseDTO = ClienteResponseDTO.builder()
+            .codigoCliente(clienteId)
+            .cpf(cpf)
+            .nomeCliente("João Silva")
+            .emailCliente("joao@example.com")
+            .numeroTelefone("11999999999")
+            .build();
+        
         when(clienteUseCase.obterCliente(cpf)).thenReturn(cliente);
+        when(clienteConverter.toDto(cliente)).thenReturn(responseDTO);
 
         // Act
-        ResponseEntity<ClienteResponseDTO> response = clienteController.obterClientePorCPF(cpf);
+        ResponseEntity<ClienteResponseDTO> response = clienteController.identificarCliente(cpf);
 
         // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
-        assertEquals("João Silva", response.getBody().getNome());
+        assertEquals("João Silva", response.getBody().getNomeCliente());
         assertEquals(cpf, response.getBody().getCpf());
     }
 
@@ -87,13 +107,11 @@ class ClienteControllerTest {
     @DisplayName("Deve lançar exceção quando cliente já existe")
     void deveLancarExcecaoQuandoClienteJaExiste() {
         // Arrange
-        ClienteRequest request = new ClienteRequest();
-        request.setCpf("86599902062");
-        request.setNome("João Silva");
-        request.setEmail("joao@example.com");
-        request.setTelefone("11999999999");
+        ClienteRequest request = new ClienteRequest("86599902062", "João Silva", "joao@example.com", "11999999999");
+        Cliente clienteDomain = new Cliente(null, "86599902062", "João Silva", "joao@example.com", "11999999999");
 
-        when(clienteUseCase.criarCliente(any(Cliente.class))).thenThrow(new ClienteExistenteException("Cliente já existe"));
+        when(clienteConverter.toDomain(request)).thenReturn(clienteDomain);
+        when(clienteUseCase.criarCliente(clienteDomain)).thenThrow(new ClienteExistenteException("Cliente já existe"));
 
         // Act & Assert
         assertThrows(ClienteExistenteException.class, () -> {
@@ -105,13 +123,11 @@ class ClienteControllerTest {
     @DisplayName("Deve lançar exceção quando CPF é inválido")
     void deveLancarExcecaoQuandoCpfInvalido() {
         // Arrange
-        ClienteRequest request = new ClienteRequest();
-        request.setCpf("11111111111");
-        request.setNome("João Silva");
-        request.setEmail("joao@example.com");
-        request.setTelefone("11999999999");
+        ClienteRequest request = new ClienteRequest("11111111111", "João Silva", "joao@example.com", "11999999999");
+        Cliente clienteDomain = new Cliente(null, "11111111111", "João Silva", "joao@example.com", "11999999999");
 
-        when(clienteUseCase.criarCliente(any(Cliente.class))).thenThrow(new InvalidCpfException("CPF inválido"));
+        when(clienteConverter.toDomain(request)).thenReturn(clienteDomain);
+        when(clienteUseCase.criarCliente(clienteDomain)).thenThrow(new InvalidCpfException("CPF inválido"));
 
         // Act & Assert
         assertThrows(InvalidCpfException.class, () -> {
@@ -124,11 +140,11 @@ class ClienteControllerTest {
     void deveLancarExcecaoQuandoClienteNaoEncontrado() {
         // Arrange
         String cpf = "86599902062";
-        when(clienteUseCase.obterCliente(anyString())).thenThrow(new ClienteNotFoundException("Cliente não encontrado"));
+        when(clienteUseCase.obterCliente(cpf)).thenThrow(new ClienteNotFoundException("Cliente não encontrado"));
 
         // Act & Assert
         assertThrows(ClienteNotFoundException.class, () -> {
-            clienteController.obterClientePorCPF(cpf);
+            clienteController.identificarCliente(cpf);
         });
     }
 }
