@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="gateway-ms" />
+        <module name="pedido-ms" />
+        <module name="produto-ms" />
+        <module name="cliente-ms" />
+        <module name="eureka-server" />
+        <module name="pagamento-ms" />
+      </profile>
+    </annotationProcessing>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="cliente-ms" options="-parameters" />
+      <module name="eureka-server" options="-parameters" />
+      <module name="gateway-ms" options="-parameters" />
+      <module name="pagamento-ms" options="-parameters" />
+      <module name="pedido-ms" options="-parameters" />
+      <module name="produto-ms" options="-parameters" />
+    </option>
+  </component>
+</project>
