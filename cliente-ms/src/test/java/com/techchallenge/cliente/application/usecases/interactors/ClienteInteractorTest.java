@@ -102,7 +102,7 @@ class ClienteInteractorTest {
         when(clienteGateway.obterClientePorCPF(cpf)).thenReturn(Optional.empty());
 
         // Act & Assert
-        assertThrows(InvalidCpfException.class, () -> {
+        assertThrows(ClienteNotFoundException.class, () -> {
             clienteInteractor.obterCliente(cpf);
         });
     }

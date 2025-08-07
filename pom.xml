@@ -26,7 +26,9 @@
 
     <modules>
         <module>eureka-server</module>
-        <module>producao-ms</module>
+        <module>gateway-ms</module>
+        <module>cliente-ms</module>
+        <module>produto-ms</module>
         <module>pedido-ms</module>
         <module>pagamento-ms</module>
     </modules>
